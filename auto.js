@@ -1,5 +1,4 @@
 const puppeteer = require("puppeteer");
-const fs = require("fs");
 const path = require("path");
 const logger = {
     info: (msg) => {
@@ -8,6 +7,19 @@ const logger = {
         console.log(time+msg);
     }
 }
+const params = process.argv.slice(2);
+/*
+let env;
+let users;
+const paramNames = ["env", "id", "pwd", "sendkey"];
+for(const param in params){
+    if(param.startsWith("--env")){
+        env = param.slice
+    }
+    else if(param.startsWith("--id")){}
+    else if(param.startsWith("--pwd")){}
+    else if(param.startsWith("--sendkey")){}
+}*/
 const request = require("request");
 const users = require("./config.js").config.users;
 const browserConfig = require("./config.js").config.browser;
@@ -16,7 +28,7 @@ const sendToWeChat = async (user2) => {
   logger.info("正发送至微信");
   let msg =
     "https://sctapi.ftqq.com/" +
-    user2.serverChanSendKey +
+    user2.scKey +
     ".send?title=学号" +
     user2.userId;
   if ((user2.status = "success")) {
@@ -95,12 +107,12 @@ const sendToWeChat = async (user2) => {
         //uploadtoImg
         user["screenshotUri"] = "123456";
       }
-      if (user.serverChanSendKey != null) {
+      if (user.serverChanSendKey != null && user.serverChanSendKey != "") {
         sendToWeChat(user);
       }
       await browser.close();
     } catch (e) {
-      console.log(e);
+      logger.info(e);
       continue;
     }
   }

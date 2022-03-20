@@ -1,0 +1,42 @@
+name: autosign
+
+on: 
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: 0 20 * * *
+  watch:
+
+  
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+
+      - name: Setup puppeteer env
+        run: |
+          npm install  
+          sudo apt-get install ca-certificates fonts-liberation libappindicator3-1 libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils -y
+      
+      - name: Sign
+        env:
+          USER_ID: ${{ secrets.USER_ID }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          SC_KEY: ${{ secrets.SC_KEY }}
+        run: |
+          cp config-template.js config.js
+          sed -i "s/YourUserId/$USER_ID/g" config.js
+          sed -i "s/YourPassword/$PASSWORD/g" config.js
+          sed -i "s/YourSendkey/$SC_KEY/g" config.js
+          cat config.js
+          node auto.js
