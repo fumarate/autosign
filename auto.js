@@ -1,29 +1,17 @@
 const puppeteer = require("puppeteer");
 const path = require("path");
 const logger = {
-    info: (msg) => {
-        var date = new Date();
-        var time = date.getTime();
-        console.log(time+msg);
-    }
-}
+  info: (msg) => {
+    var date = new Date();
+    var time = date.getTime();
+    console.log(time + msg);
+  },
+};
 const params = process.argv.slice(2);
-/*
-let env;
-let users;
-const paramNames = ["env", "id", "pwd", "sendkey"];
-for(const param in params){
-    if(param.startsWith("--env")){
-        env = param.slice
-    }
-    else if(param.startsWith("--id")){}
-    else if(param.startsWith("--pwd")){}
-    else if(param.startsWith("--sendkey")){}
-}*/
 const request = require("request");
 const users = require("./config.js").config.users;
 const browserConfig = require("./config.js").config.browser;
-const testMode = require("./config.js").config.public.testMode;
+const publicConfig = require("./config.js").config.public;
 const sendToWeChat = async (user2) => {
   logger.info("正发送至微信");
   let msg =
@@ -42,36 +30,72 @@ const sendToWeChat = async (user2) => {
   }
   request(encodeURI(msg));
 };
+const login = async (user, page) => {
+  const { userId, password } = user;
+  const usernameInput = await page.$("#mobileUsername");
+  await usernameInput.type(userId); //输入学号
+  logger.info("学号输入成功");
+  const passwordInput = await page.$("#mobilePassword");
+  await passwordInput.type(password); //输入密码
+  logger.info("密码输入成功");
+  const needCaptcha = await page.evaluate(async() => {
+    return document.getElementById("cpatchaDiv").style.display != "none"
+  })
+  if (needCaptcha) {
+    const Tesseract = require("tesseract.js");
+    const el = await page.$("#captchaImg");
+    await el.screenshot({ path: "captcha.png" });
+    const captchaInput = await page.$("#captchaResponse");
+    await Tesseract.recognize("captcha.png", "eng", {
+      logger: (m) => console.log(m),
+    }).then(async ({ data: { text } }) => {
+      await captchaInput.type(text.replaceAll(" ", ""));
+    });//准确率极低，不建议使用
+  }
+  await Promise.all([
+    page.waitForNavigation({
+      waitUntil: "networkidle0",
+    }),
+    page.click("#load"), //点击登录
+  ]);
+  const url = await page.url();
+  if (url.startsWith("https://workflow.ecust.edu.cn/")) {
+    logger.info("登录成功");
+    return true;
+  } else return false;
+};
 (async () => {
-  for (const user of users) {
+  const browser = await puppeteer.launch(browserConfig);
+  for (let i = 0; i < users.length; i++) {
+    const user = users[i];
+    logger.info("学号：" + user.userId + "开始打卡。");
+    const page = await browser.newPage();
+    await page.emulate(puppeteer.devices["iPhone X"]);
     try {
-      logger.info("学号：" + user.userId + "开始打卡。");
-      const browser = await puppeteer.launch(browserConfig);
-      const page = await browser.newPage();
-      await page.emulate(puppeteer.devices["iPhone X"]);
       await page.goto(
         "https://workflow.ecust.edu.cn/default/work/uust/zxxsmryb/mrybtb.jsp",
         { waitUntil: "networkidle0" }
       );
       logger.info("进入成功");
-      const usernameInput = await page.$("#mobileUsername");
-      await usernameInput.type(user.userId); //输入学号
-      logger.info("学号输入成功");
-      const passwordInput = await page.$("#mobilePassword");
-      await passwordInput.type(user.password); //输入密码
-      logger.info("密码输入成功");
-      await Promise.all([
-        page.waitForNavigation({
-          waitUntil: "networkidle0",
-        }),
-        logger.info("登录成功"),
-        page.click("#load"), //点击登录
-      ]);
+      let failedTimes = 0;
+      while (true) {
+        if (await login(user, page)) {
+          logger.info("登录成功");
+          break;
+        }else{
+          failedTimes++;
+          if(failedTimes>=publicConfig.retryTimes){
+            logger.info("登录失败，退出");
+            throw new Error("登录失败");
+          }
+        }
+      }
+
       const signed = await page.evaluate(async () => {
         return flag;
       });
       if (signed) {
-        if (testMode) {
+        if (publicConfig.testMode) {
           await page.evaluate(async () => {
             $("#layui-layer100001").remove();
             $("#layui-layer-shade100001").remove();
@@ -107,13 +131,16 @@ const sendToWeChat = async (user2) => {
         //uploadtoImg
         user["screenshotUri"] = "123456";
       }
-      if (user.serverChanSendKey != null && user.serverChanSendKey != "") {
+      if (user.scKey != null && user.scKey != "") {
         sendToWeChat(user);
       }
-      await browser.close();
+      await page.close();
     } catch (e) {
+      await page.close();
       logger.info(e);
+      i--;
       continue;
     }
   }
+  await browser.close();
 })();
