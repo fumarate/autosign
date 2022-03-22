@@ -5,6 +5,10 @@
 auto.js: 主程序
 config.js: 设置文件
 
+# 配置文件结构
+请查看config-template.js。
+使用时，将其重命名为config.js，并补充相关信息。
+
 # 在你的计算机上测试
 
 如果你已经安装nodejs，保证你的node在12.22以上。
