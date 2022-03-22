@@ -36,22 +36,22 @@ const {TimeoutError} = require("puppeteer");
 const users = require("./config.js").config.users;
 const browserConfig = require("./config.js").config.browser;
 const publicConfig = require("./config.js").config.public;
-
+const nodemailer = require('nodemailer')
 class Reporter {
-    constructor(rConfig) {
-        this.logger = Logger("reporter")
+    constructor(rConfig,logger = new Logger("public")) {
+        this.logger = logger;
         for (const method of rConfig.use) {
             if (method == "sc") {
-                this.reporter.scKey = rConfig.scKey
+                this.scKey = rConfig.scKey
             } else if (method == "mail") {
-                this.reporter.mailAddress = rConfig.mailAddress
+                this.mailAddress = rConfig.mailAddress
             }
         }
     }
 
     async report(msg) {
         if (this.scKey) {
-            this.logger.info("正发送至微信:" + msg);
+            this.logger.info("使用微信通知" + msg);
             let url =
                 "https://sctapi.ftqq.com/" +
                 this.scKey +
@@ -60,7 +60,30 @@ class Reporter {
             request(encodeURI(url));
         }
         if (this.mailAddress) {
-            //等待开发
+            this.logger.info("使用邮件通知" + msg);
+            const {host, port} = publicConfig.mailSend;
+            let account = {
+                user: publicConfig.mailSend.mailAddress,
+                pass: publicConfig.mailSend.mailPassword
+            };
+
+            let transporter = nodemailer.createTransport({
+                host: host,
+                port: port,
+                secure: false,
+                auth: {
+                    user: account.user,
+                    pass: account.pass
+                }
+
+            });
+            let info = await transporter.sendMail({
+                from: '"🤖autosign✅"' + account.user,
+                to: this.mailAddress,
+                subject: "健康打卡状态通告",
+                text: msg
+            })
+            this.logger.info("邮件发送成功")
         }
     }
 }
@@ -71,8 +94,7 @@ class Sign {
         this.browser = browser;
         this.logger = new Logger(user.userId)
         if (user.report.status) {
-            this.reporter = new Reporter(user.report);
-
+            this.reporter = new Reporter(user.report,this.logger);
         }
     }
 
@@ -216,7 +238,7 @@ class Sign {
         for (const user of users) {
             const sign = new Sign(user, browser);
             const msg = await sign.run();
-            allMsg.push(msg)
+            allMsg.push(user.userId+msg)
         }
         await pubReporter.report(allMsg.join("\n\n"))
         await browser.close();

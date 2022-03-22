@@ -4,7 +4,13 @@ exports.config = {
             status: true,
             use: ["sc", "mail"],
             scKey: "YourSendKey",
-            //mailAddress: "YourMailAddress"
+            mailAddress: "YourMailAddress"
+        },
+        mailSend: {
+            mailAddress: "YourSendMailAddress",
+            mailPassword: "YourSenfMailPassword",
+            host: "YourMailSMTPServer",
+            port: "YourMailSMTPPort"// NUMBER!!!
         },
         fillMethod: "click", //click or console
         retryTimes: 3, //重试次数
@@ -13,10 +19,10 @@ exports.config = {
         {
             userId: "YourUserId", //学号
             password: "YourPassword", //密码
-            scKey: "YourSendkey", //发送到微信的key
             report: {
                 status: false,
-                use: ["mail"],
+                use: ["sc", "mail"],
+                scKey: "YourSendkey", //发送到微信的key
                 mailAddress: "YourMailAdddress"
             }
         },
