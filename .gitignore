@@ -108,3 +108,5 @@ dist
 
 config.js
 *.traineddata
+
+.idea

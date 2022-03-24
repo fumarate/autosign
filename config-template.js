@@ -8,7 +8,7 @@ exports.config = {
         },
         mailSend: {//启用邮箱通知时，发件邮箱的信息
             mailAddress: "YourSendMailAddress",//邮箱地址
-            mailPassword: "YourSenfMailPassword",//邮箱密码或口令
+            mailPassword: "YourSendMailPassword",//邮箱密码或口令
             host: "YourMailSMTPServer",//SMTP服务器地址
             port: "YourMailSMTPPort"// SMTP服务器端口。一定要改成数字
         },
