@@ -20,8 +20,8 @@ config.js: 设置文件
 运行程序时，避免以root运行。
 ```bash
 sudo apt install nodejs npm
-npm install -g n
-n lts
+sudo npm install -g n
+sudo n lts
 git clone git@github.com:Shigure19/autosign.git
 cd autosign
 npm install

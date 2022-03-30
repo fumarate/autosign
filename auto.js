@@ -61,15 +61,21 @@ class Reporter {
     if (this.mailAddress) {
       try {
         this.logger.info('使用邮件通知"' + msg + '"');
-        const { host, port } = publicConfig.mailSend;
+        const { host, port, ssl } = publicConfig.mailSend;
         let account = {
           user: publicConfig.mailSend.mailAddress,
           pass: publicConfig.mailSend.mailPassword,
         };
         let transporter = nodemailer.createTransport({
           host: host,
-          port: port,
-          secure: false,
+          port: ((port) => {
+            try {
+              return Number(port);
+            } catch (e) {
+              //端口不是数字字符串
+            }
+          })(port),
+          secure: ssl,
           auth: {
             user: account.user,
             pass: account.pass,
@@ -211,9 +217,11 @@ class Sign {
         this.logger.info("已选择健康码绿码");
         await this.page.click("#sui-select-sfycxxwc33"); //没从学校外出
         this.logger.info("已选择没从学校外出");
+        await this.page.click("#post");
+        /*
         await this.page.evaluate(async () => {
           saveOrUpdate();
-        });
+        });*/
         await this.page.click(".layui-layer-btn0");
         this.logger.info("已打卡");
       }
