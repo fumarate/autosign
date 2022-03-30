@@ -1,12 +1,10 @@
 name: autosign
 
-on: 
-  push:
-    branches:
-      - main
-  schedule:
-    - cron: 0 20 * * *
+on:
   watch:
+    types: [started]
+  schedule:
+    - cron:  '0 1 * * *'
 
   
 jobs:
@@ -38,5 +36,4 @@ jobs:
           sed -i "s/YourUserId/$USER_ID/g" config.js
           sed -i "s/YourPassword/$PASSWORD/g" config.js
           sed -i "s/YourSendkey/$SC_KEY/g" config.js
-          cat config.js
           node auto.js
