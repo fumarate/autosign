@@ -20,20 +20,23 @@ config.js: 设置文件
 运行程序时，避免以root运行。
 ```bash
 sudo apt install nodejs npm
+sudo apt-get install ca-certificates fonts-liberation libappindicator3-1 libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils -y
 sudo npm install -g n
 sudo n lts
 git clone git@github.com:Shigure19/autosign.git
 cd autosign
 npm install
-sudo apt-get install ca-certificates fonts-liberation libappindicator3-1 libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils -y
 cd node_modules/puppeteer
 npm install
+cd ../..
 node auto.js
 ```
 
 # 部署到Docker
 
-待完成。
+你可以尝试使用dockerfile部署，打包镜像前请先修改好配置文件。
+
+暂时不要依赖本dockerfile文件，还在测试中。
 
 # <s>部署到腾讯云函数</s>
 
