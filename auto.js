@@ -1,8 +1,7 @@
 const puppeteer = require("puppeteer");
 const moment = require("moment");
 const colors = require("colors");
-
-const request = require("request");
+const fetch = require("node-fetch");
 const { TimeoutError } = require("puppeteer");
 const users = require("./config.js").config.users;
 const browserConfig = require("./config.js").config.browser;
@@ -49,18 +48,25 @@ class Reporter {
   }
 
   async report(msg) {
+    this.logger.info('通知内容' + msg);
     if (this.scKey) {
-      this.logger.info('使用微信通知"' + msg + '"');
       let url =
         "https://sctapi.ftqq.com/" +
         this.scKey +
         ".send?title=健康打卡状态通告&desp=" +
         msg;
-      request(encodeURI(url));
+      fetch(encodeURI(url),method='GET')
+      .then(resp=>resp.json())
+      .then(respJson=>{
+        if(respJson.code==0){
+          this.logger.info('微信通知成功');
+        }else{
+          this.logger.error('微信通知失败');
+        }
+      });
     }
     if (this.mailAddress) {
       try {
-        this.logger.info('使用邮件通知"' + msg + '"');
         const { host, port, ssl } = publicConfig.mailSend;
         let account = {
           user: publicConfig.mailSend.mailAddress,
@@ -89,7 +95,7 @@ class Reporter {
         });
         this.logger.info("邮件发送成功");
       } catch (e) {
-        this.logger.error(e);
+        this.logger.error("邮件发送失败");
       }
     }
   }
@@ -218,10 +224,6 @@ class Sign {
         await this.page.click("#sui-select-sfycxxwc33"); //没从学校外出
         this.logger.info("已选择没从学校外出");
         await this.page.click("#post");
-        /*
-        await this.page.evaluate(async () => {
-          saveOrUpdate();
-        });*/
         await this.page.click(".layui-layer-btn0");
         this.logger.info("已打卡");
       }
@@ -247,6 +249,6 @@ class Sign {
     const msg = await sign.run();
     allMsg.push(user.userId + msg);
   }
-  await pubReporter.report(allMsg.join("；\n\n"));
+  await pubReporter.report(allMsg.join("\n"));
   await browser.close();
 })();
