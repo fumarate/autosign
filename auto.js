@@ -1,12 +1,13 @@
-const puppeteer = require("puppeteer");
-const moment = require("moment");
-const colors = require("colors");
-const fetch = require("node-fetch");
-const { TimeoutError } = require("puppeteer");
-const users = require("./config.js").config.users;
-const browserConfig = require("./config.js").config.browser;
-const publicConfig = require("./config.js").config.public;
-const nodemailer = require("nodemailer");
+import puppeteer from "puppeteer";
+const { TimeoutError } = puppeteer;
+import moment from "moment";
+import colors from "colors";
+import fetch from "node-fetch";
+import config from "./config.js";
+const users = config.users;
+const publicConfig = config.public;
+const browserConfig = config.browser;
+import nodemailer from "nodemailer";
 
 class Logger {
   constructor(tag) {
@@ -48,22 +49,22 @@ class Reporter {
   }
 
   async report(msg) {
-    this.logger.info('通知内容' + msg);
+    this.logger.info("通知内容:" + msg);
     if (this.scKey) {
       let url =
         "https://sctapi.ftqq.com/" +
         this.scKey +
         ".send?title=健康打卡状态通告&desp=" +
         msg;
-      fetch(encodeURI(url),method='GET')
-      .then(resp=>resp.json())
-      .then(respJson=>{
-        if(respJson.code==0){
-          this.logger.info('微信通知成功');
-        }else{
-          this.logger.error('微信通知失败');
-        }
-      });
+      fetch(encodeURI(url), {method :"GET"})
+        .then((resp) => resp.json())
+        .then((respJson) => {
+          if (respJson.code == 0) {
+            this.logger.info("微信通知成功");
+          } else {
+            this.logger.error("微信通知失败");
+          }
+        });
     }
     if (this.mailAddress) {
       try {

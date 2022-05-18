@@ -7,5 +7,6 @@
     "puppeteer": "^13.5.1",
     "tesseract.js": "^2.1.5"
   },
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "type": "module"
 }

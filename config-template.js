@@ -1,4 +1,4 @@
-exports.config = {
+export default config = {
   public: {
     report: {
       status: true, //总通知开关
