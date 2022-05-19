@@ -107,7 +107,7 @@ node auto.js
 
 1、github action仅支持精确到分钟的五位cron表达式。
 
-2、github action遵循的是UTC时间。也就是说，对这一位数值+8并对24取余，得到的才是真实时间。
+2、github action遵循的是UTC时间。也就是说，对小时位数值+8并对24取余，得到的才是真实时间。
 
 请不要在高峰期打卡！
 

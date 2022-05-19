@@ -1,8 +1,8 @@
 name: autosign
 
-on:
-  schedule:
-    - cron:  '0 1 31 2 *'
+# on:
+#   schedule:
+#     - cron:  '0 1 * * *'
 
   
 jobs:
