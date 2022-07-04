@@ -21,6 +21,7 @@ export default config = {
     {
       userId: "YourUserId", //学号
       password: "YourPassword", //密码
+      position: "YourPosition", //现在位置，[fx,xh,sh,gn,jw] 对应五个选项
       report: {
         status: false, //是否开启个人通知
         use: ["sc", "mail"], //通知方法，现在支持server酱和邮件
@@ -30,6 +31,6 @@ export default config = {
     },
   ],
   browser: {
-    headless: true, //是否打开浏览器的无头模式。如果你想参与到开发中，这是很有用的，可以帮助你监视过程，判断问题所在。如果你不参与开发，则只能用于炫耀
+    headless: false, //是否打开浏览器的无头模式。如果你想参与到开发中，这是很有用的，可以帮助你监视过程，判断问题所在。如果你不参与开发，则只能用于炫耀
   },
 };

@@ -222,8 +222,25 @@ class Sign {
         this.logger.info("已选择体温正常");
         await this.page.click("#sui-select-jkmsflm12"); //健康码绿码
         this.logger.info("已选择健康码绿码");
-        await this.page.click("#sui-select-sfycxxwc33"); //没从学校外出
+        await this.page.click("#sui-select-sfycxxwc43"); //没从学校外出
         this.logger.info("已选择没从学校外出");
+        switch(this.user.position){
+          case "xh":
+            await this.page.click("#radio_xrywz32");
+            break;
+          case "fx":
+            await this.page.click("#radio_xrywz34");
+            break;
+          case "sh":
+            await this.page.click("#radio_xrywz36");
+            break;
+          case "gn":
+            await this.page.click("#radio_xrywz38");
+            break;
+          case "jw":
+            await this.page.click("#radio_xrywz40");
+            break;
+        }
         await this.page.click("#post");
         await this.page.click(".layui-layer-btn0");
         this.logger.info("已打卡");
